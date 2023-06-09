@@ -52,4 +52,15 @@ public class AuthenticationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(credentials, headers);
     }
+    public boolean registerAdmin(UserCredentials credentials){
+        HttpEntity<UserCredentials> entity = createCredentialsEntity(credentials);
+        boolean success = false;
+        try {
+            restTemplate.exchange(baseUrl + "register-admin", HttpMethod.POST, entity, Void.class);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e){
+            BasicLogger.log(e.getMessage());
+        }
+        return success;
+    }
 }
