@@ -14,5 +14,6 @@ public interface UserDao {
 
     int findIdByUsername(String username);
 
+    boolean createAdmin(String username, String password);
     boolean create(String username, String password);
 }
