@@ -13,16 +13,21 @@ public class AccountService {
     private final String BASE_URL;
     private final RestTemplate restTemplate = new RestTemplate();
     public AuthenticatedUser user;
+
     public AccountService(String url){
         BASE_URL = url;
     }
+
     public void setUser(AuthenticatedUser user){
+        // Set the authenticated user for the account service
         this.user = user;
     }
+
     public BigDecimal getBalance(AuthenticatedUser user) {
         BigDecimal balance = new BigDecimal(0);
         try {
             setUser(user);
+            // Retrieve the account balance for the authenticated user
             balance = restTemplate.exchange(BASE_URL + "/user/" + user.getUser().getId() + "/balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
             System.out.println("Your current account balance is: $" + balance);
         } catch (RestClientException e) {
@@ -30,22 +35,27 @@ public class AccountService {
         }
         return balance;
     }
+
     public Account findAccountByUserId(int userId) {
         Account account = null;
         try {
+            // Find an account by user ID
             account = restTemplate.exchange(BASE_URL + "/user/" + userId, HttpMethod.GET, makeAuthEntity(), Account.class).getBody();
         } catch (RestClientException e) {
             System.out.println("This account could not be found.");
         }
         return account;
     }
+
     public HttpEntity<Void> makeAuthEntity() {
+        // Create an HTTP entity with authentication headers
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(user.getToken());
         return new HttpEntity<>(headers);
     }
 
     public HttpEntity<Account> makeAccountEntity(Account account) {
+        // Create an HTTP entity with account data and authentication headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(user.getToken());

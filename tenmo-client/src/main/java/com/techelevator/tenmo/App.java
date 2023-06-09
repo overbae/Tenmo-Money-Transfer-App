@@ -22,6 +22,7 @@ public class App {
     private AccountService accountService = new AccountService(API_ACCOUNT_BASE_URL);
     private UserService userService = new UserService(API_USER_BASE_URL);
     private TransferService transferService = new TransferService(API_TRANSFER_BASE_URL);
+
     public static void main(String[] args) {
         App app = new App();
         app.run();
@@ -34,6 +35,8 @@ public class App {
             mainMenu();
         }
     }
+
+    // Display the login menu and handle user input
     private void loginMenu() {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null) {
@@ -50,6 +53,7 @@ public class App {
         }
     }
 
+    // Handle user registration
     private void handleRegister() {
         System.out.println("Please register a new user account");
         UserCredentials credentials = consoleService.promptForCredentials();
@@ -59,21 +63,8 @@ public class App {
             consoleService.printErrorMessage();
         }
     }
-    private void handleRegisterAsAdmin() {
-        String companyPassword = consoleService.promptForString("You know what to do: ");
-        if (Objects.equals(companyPassword, "OneDoesNotSimplyWalkIntoThisApp")) {
-            System.out.println("Please register your account.");
-            UserCredentials credentials = consoleService.promptForCredentials();
-            if (authenticationService.registerAdmin(credentials)) {
-                System.out.println("Registration successful. You can now login.");
-            } else {
-                consoleService.printErrorMessage();
-            }
-        } else {
-            System.out.println("Or maybe you don't...");
-        }
-    }
 
+    // Handle user login
     private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
@@ -82,6 +73,7 @@ public class App {
         }
     }
 
+    // Display the main menu and handle user input
     private void mainMenu() {
         int menuSelection = -1;
         while (menuSelection != 0) {
@@ -106,21 +98,19 @@ public class App {
         }
     }
 
-	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+    // View the current balance of the user's account
+    private void viewCurrentBalance() {
         accountService.getBalance(currentUser);
-		
-	}
+    }
 
-	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+    // View the transfer history of the current user
+    private void viewTransferHistory() {
         Transfer[] transfers = transferService.findAllTransfersForCurrentUser(currentUser);
         transferService.printTransfers(transfers);
-		
-	}
+    }
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+    // View pending transfer requests of the current user
+    private void viewPendingRequests() {
         Transfer[] pendingTransfersList = transferService.getPendingRequests(currentUser);
         transferService.printTransfers(pendingTransfersList);
         if (pendingTransfersList.length != 0) {
@@ -129,31 +119,31 @@ public class App {
         }
     }
 
-
-	private void sendBucks() {
-		// TODO Auto-generated method stub
-		userService.listAllUsers(currentUser);
+    // Send bucks to another user
+    private void sendBucks() {
+        userService.listAllUsers(currentUser);
         transferService.sendBucks(currentUser);
-	}
+    }
 
-	private void requestBucks() {
-		// TODO Auto-generated method stub
-		userService.listAllUsers(currentUser);
+    // Request bucks from another user
+    private void requestBucks() {
+        userService.listAllUsers(currentUser);
         transferService.requestBucks(currentUser);
-	}
-    private void viewTransferByTransferId(){
+    }
+
+    // View the details of a specific transfer by its transfer ID
+    private void viewTransferByTransferId() {
         Transfer transfer = transferService.findTransferByTransferId();
         int userId = currentUser.getUser().getId();
         Account userAccount = accountService.findAccountByUserId(userId);
-        if(transfer != null){
-            if(transfer.getAccountTo() == userAccount.getAccountId() || transfer.getAccountFrom() == userAccount.getAccountId()){
+        if (transfer != null) {
+            if (transfer.getAccountTo() == userAccount.getAccountId() || transfer.getAccountFrom() == userAccount.getAccountId()) {
                 System.out.println(transfer.transferDetailsPrintOut());
-            }else{
+            } else {
                 System.out.println("Either no transfer was found, or you are not authorized to view the matching transfer.");
             }
-        }else {
+        } else {
             System.out.println("... or maybe you are not authorized to view said transfer.");
         }
     }
-
 }

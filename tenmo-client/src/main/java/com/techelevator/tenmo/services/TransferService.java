@@ -21,22 +21,28 @@ public class TransferService {
     public TransferService(String url){
         BASE_URL = url;
     }
+
     public void setUser(AuthenticatedUser user){
+        // Set the authenticated user for the transfer service
         this.user = user;
     }
+
     public Transfer[] findAllTransfersForCurrentUser(AuthenticatedUser user){
         Transfer[] transferHistory = null;
         try{
             setUser(user);
+            // Retrieve all transfers for the current user
             transferHistory = restTemplate.exchange(BASE_URL + "/user/" + user.getUser().getId(), HttpMethod.GET, makeAuthEntity(user), Transfer[].class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfers cannot be displayed.");
         }
         return transferHistory;
     }
+
     public Transfer[] seeAllTransfers() {
         Transfer[] transfers = null;
         try {
+            // Retrieve all transfers
             transfers = restTemplate.exchange(BASE_URL + "/all", HttpMethod.GET, makeAuthEntity(user), Transfer[].class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfers cannot be displayed.");
@@ -48,6 +54,7 @@ public class TransferService {
         Transfer transfer = null;
         int transferId = consoleService.promptForInt("Please enter the transfer ID for the transfer you'd like to view: ");
         try {
+            // Find a transfer by transfer ID
             transfer = restTemplate.exchange(BASE_URL + "/" + transferId, HttpMethod.GET, makeAuthEntity(user), Transfer.class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Your transfer could not be found.");
@@ -58,6 +65,7 @@ public class TransferService {
     public String createTransfer(Transfer transfer) {
         String transferSuccessReport = "";
         try {
+            // Create a new transfer
             transferSuccessReport = restTemplate.exchange(BASE_URL + "/send", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfer failed. Try again.");
@@ -70,6 +78,7 @@ public class TransferService {
             System.out.println("There are no transfers to display.");
         }
         for (Transfer transfer : transfers) {
+            // Print details of each transfer
             System.out.println(transfer.transferDetailsPrintOut());
         }
     }
@@ -77,6 +86,7 @@ public class TransferService {
     public Transfer[] getPendingRequests(AuthenticatedUser user) {
         Transfer[] pendingTransfersList = null;
         try {
+            // Retrieve all pending transfer requests for the user
             pendingTransfersList = restTemplate.exchange(BASE_URL + "/user/" + user.getUser().getId() + "/pending", HttpMethod.GET, makeAuthEntity(user), Transfer[].class).getBody();
         } catch (RestClientResponseException e) {
             e.printStackTrace();
@@ -87,6 +97,7 @@ public class TransferService {
     public String updateTransfer(Transfer transfer, int statusId, AuthenticatedUser user) {
         String transferSuccessReport = "";
         try {
+            // Update the status of a transfer
             transferSuccessReport = restTemplate.exchange(BASE_URL + "/update/" + statusId, HttpMethod.PUT, makeTransferEntity(transfer, user), String.class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             transferSuccessReport = "Your transfer could not be updated.";
@@ -153,6 +164,7 @@ public class TransferService {
                 } catch (NumberFormatException e) {
                     System.out.println("There was an error processing the amount");
                 }
+                // Send a request for a transfer
                 String transferSuccess = restTemplate.exchange(BASE_URL + "/request", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
                 System.out.println(transferSuccess);
             }
@@ -178,6 +190,7 @@ public class TransferService {
                 } catch (NumberFormatException e) {
                     System.out.println("There was an error processing the amount");
                 }
+                // Send a transfer
                 String transferSuccess = restTemplate.exchange(BASE_URL + "/send", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
                 System.out.println(transferSuccess);
             }
@@ -199,7 +212,6 @@ public class TransferService {
         headers.setBearerAuth(user.getToken());
         return new HttpEntity<>(transfer, headers);
     }
-
-
 }
+
 

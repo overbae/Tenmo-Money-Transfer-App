@@ -17,6 +17,7 @@ public class Transfer {
     private String userFromUsername;
     private String transferStatus;
     private String transferType;
+
     public int getTransferId() {
         return transferId;
     }
@@ -113,31 +114,39 @@ public class Transfer {
         this.transferType = transferType;
     }
 
-    public String displayTransferType(Integer transferTypeId){
-        if(transferTypeId == 1){
+    public String displayTransferType(Integer transferTypeId) {
+        // Display the transfer type based on the transfer type ID
+        if (transferTypeId == 1) {
             return "Request Money";
-        }else if(transferTypeId == 2){
+        } else if (transferTypeId == 2) {
             return "Send Money";
         }
+        // If the transfer type ID is not recognized, return the ID as a string
         return transferTypeId.toString();
     }
-    public String displayTransferStatus(Integer transferStatusId){
-        if(transferStatusId == 1){
+
+    public String displayTransferStatus(Integer transferStatusId) {
+        // Display the transfer status based on the transfer status ID
+        if (transferStatusId == 1) {
             return "Pending";
-        }else if(transferStatusId == 2){
+        } else if (transferStatusId == 2) {
             return "Approved";
-        }else if(transferStatusId == 3){
+        } else if (transferStatusId == 3) {
             return "Rejected";
-        }else {
+        } else {
+            // If the transfer status ID is not recognized, return the ID as a string
             return transferStatusId.toString();
         }
     }
 
-    public String displayAsCurrency(BigDecimal bigDecimal){
+    public String displayAsCurrency(BigDecimal bigDecimal) {
+        // Format a BigDecimal value as a currency string
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         return formatter.format(bigDecimal);
     }
+
     public String transferDetailsPrintOut() {
+        // Generate a formatted string with transfer details
         StringBuilder formattedMenu = new StringBuilder();
 
         formattedMenu.append("-------------------------------------------------------------------------------------------\n");
@@ -157,3 +166,4 @@ public class Transfer {
         return formattedMenu.toString();
     }
 }
+
