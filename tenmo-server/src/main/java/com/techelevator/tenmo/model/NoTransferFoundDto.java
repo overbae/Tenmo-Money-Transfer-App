@@ -1,4 +1,4 @@
 package com.techelevator.tenmo.model;
 
-public class TransferStatus {
+public class NoTransferFoundDto {
 }

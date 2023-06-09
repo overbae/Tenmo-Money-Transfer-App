@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class User {
+public class UserDto {
 
    private int id;
    private String username;
@@ -14,11 +14,11 @@ public class User {
    private String password;
    @JsonIgnore
    private boolean activated;
-   private Set<Authority> authorities = new HashSet<>();
+   private Set<AuthorityDto> authorities = new HashSet<>();
 
-   public User() { }
+   public UserDto() { }
 
-   public User(int id, String username, String password, String authorities) {
+   public UserDto(int id, String username, String password, String authorities) {
       this.id = id;
       this.username = username;
       this.password = password;
@@ -58,18 +58,18 @@ public class User {
       this.activated = activated;
    }
 
-   public Set<Authority> getAuthorities() {
+   public Set<AuthorityDto> getAuthorities() {
       return authorities;
    }
 
-   public void setAuthorities(Set<Authority> authorities) {
+   public void setAuthorities(Set<AuthorityDto> authorities) {
       this.authorities = authorities;
    }
 
    public void setAuthorities(String authorities) {
       String[] roles = authorities.split(",");
       for(String role : roles) {
-         this.authorities.add(new Authority("ROLE_" + role));
+         this.authorities.add(new AuthorityDto("ROLE_" + role));
       }
    }
 
@@ -77,7 +77,7 @@ public class User {
    public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      User user = (User) o;
+      UserDto user = (UserDto) o;
       return id == user.id &&
               activated == user.activated &&
               Objects.equals(username, user.username) &&

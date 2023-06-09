@@ -1,7 +1,7 @@
 package com.techelevator.tenmo.dao;
-import com.techelevator.tenmo.model.TransferType;
+import com.techelevator.tenmo.model.TransferTypeDto;
 public interface TransferTypeDao {
-    TransferType getTransferTypeById(int typeId);
+    TransferTypeDto getTransferTypeById(int typeId);
 
-    TransferType getTransferTypeByDesc(String desc);
+    TransferTypeDto getTransferTypeByDesc(String desc);
 }

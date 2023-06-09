@@ -2,7 +2,7 @@ package com.techelevator.tenmo.security;
 
 
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,7 +35,7 @@ public class UserModelDetailsService implements UserDetailsService {
         return createSpringSecurityUser(lowercaseLogin, userDao.findByUsername(lowercaseLogin));
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {
+    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, UserDto user) {
         if (!user.isActivated()) {
             throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
         }

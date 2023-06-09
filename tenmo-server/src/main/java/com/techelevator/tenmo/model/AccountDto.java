@@ -1,4 +1,4 @@
 package com.techelevator.tenmo.model;
 
-public class Transfer {
+public class AccountDto {
 }

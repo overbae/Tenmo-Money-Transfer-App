@@ -1,6 +1,6 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,7 +43,7 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public User getUserById(int userId) {
+    public UserDto getUserById(int userId) {
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE user_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         if (results.next()) {
@@ -54,13 +54,13 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public List<User> findAll() {
-        List<User> users = new ArrayList<>();
+    public List<UserDto> findAll() {
+        List<UserDto> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user";
 
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
-            User user = mapRowToUser(results);
+            UserDto user = mapRowToUser(results);
             users.add(user);
         }
 
@@ -68,7 +68,7 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public User findByUsername(String username) {
+    public UserDto findByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
@@ -101,8 +101,8 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
-    private User mapRowToUser(SqlRowSet rs) {
-        User user = new User();
+    private UserDto mapRowToUser(SqlRowSet rs) {
+        UserDto user = new UserDto();
         user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));

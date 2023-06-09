@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.LoginDto;
 import com.techelevator.tenmo.model.RegisterUserDto;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -47,7 +47,7 @@ public class AuthenticationController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication, false);
         
-        User user = userDao.findByUsername(loginDto.getUsername());
+        UserDto user = userDao.findByUsername(loginDto.getUsername());
 
         return new LoginResponseDto(jwt, user);
     }

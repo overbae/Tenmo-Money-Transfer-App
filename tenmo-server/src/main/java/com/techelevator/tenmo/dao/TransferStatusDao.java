@@ -1,8 +1,8 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.TransferStatus;
+import com.techelevator.tenmo.model.TransferStatusDto;
 public interface TransferStatusDao {
-    TransferStatus getTransferStatusById(int statusId);
+    TransferStatusDto getTransferStatusById(int statusId);
 
-    TransferStatus getTransferStatusByDesc(String desc);
+    TransferStatusDto getTransferStatusByDesc(String desc);
 }
