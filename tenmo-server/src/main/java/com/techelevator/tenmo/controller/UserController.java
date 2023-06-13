@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("user")
+@CrossOrigin(origins = "*")
 public class UserController {
     UserDao userDao;
 
@@ -29,7 +30,7 @@ public class UserController {
     public ResponseEntity<UserDto> getUserByUserId(@PathVariable int userId) {
         UserDto user = userDao.getUserById(userId);
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         } else {
             return ResponseEntity.ok(user);
         }
@@ -39,7 +40,7 @@ public class UserController {
     public ResponseEntity<Object> findByUsername(@RequestParam("username") String username) {
         UserDto user = userDao.findByUsername(username);
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         } else {
             return ResponseEntity.ok(user);
         }
