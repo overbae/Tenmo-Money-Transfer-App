@@ -4,32 +4,32 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class Account {
-    private Integer accountId;
-    private Integer userId;
+    private int accountId;
+    private int userId;
     private BigDecimal balance;
 
     public Account() {
     }
 
-    public Account(Integer accountId, Integer userId, BigDecimal balance) {
+    public Account(int accountId, int userId, BigDecimal balance) {
         this.accountId = accountId;
         this.userId = userId;
         this.balance = balance;
     }
 
-    public Integer getAccountId() {
+    public int getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(Integer accountId) {
+    public void setAccountId(int accountId) {
         this.accountId = accountId;
     }
 
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -46,7 +46,7 @@ public class Account {
         if (this == o) return true;
         if (!(o instanceof Account)) return false;
         Account account = (Account) o;
-        return getAccountId().equals(account.getAccountId()) && getUserId().equals(account.getUserId()) && getBalance().equals(account.getBalance());
+        return getAccountId() == account.getAccountId() && getUserId() == account.getUserId() && getBalance().equals(account.getBalance());
     }
 
     @Override
@@ -61,6 +61,5 @@ public class Account {
                 ", userId=" + userId +
                 ", balance=" + balance +
                 '}';
-
     }
 }

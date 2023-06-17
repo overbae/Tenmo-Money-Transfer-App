@@ -1,7 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.UserDto;
+import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,39 +15,43 @@ import java.util.List;
 @RequestMapping("user")
 @CrossOrigin(origins = "*")
 public class UserController {
-    UserDao userDao;
+    private final UserDao userDao;
 
     public UserController(UserDao userDao){
         this.userDao = userDao;
     }
+
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping(path = "", method = RequestMethod.GET)
-    public List<UserDto> listAllUsers() {
+    @GetMapping
+    public List<User> listAllUsers() {
         return userDao.findAll();
     }
+
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping (path = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserDto> getUserByUserId(@PathVariable int userId) {
-        UserDto user = userDao.getUserById(userId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserByUserId(@PathVariable int userId) {
+        User user = userDao.getUserById(userId);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         } else {
             return ResponseEntity.ok(user);
         }
     }
+
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping (path = "/{username}", method = RequestMethod.GET)
-    public ResponseEntity<Object> findByUsername(@RequestParam("username") String username) {
-        UserDto user = userDao.findByUsername(username);
+    @GetMapping(params = "username")
+    public ResponseEntity<User> findByUsername(@RequestParam("username") String username) {
+        User user = userDao.findByUsername(username);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         } else {
             return ResponseEntity.ok(user);
         }
     }
+
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping (path = "user/userId/{username}", method = RequestMethod.GET)
-    public int findIdByUsername(String username) {
+    @GetMapping("/userId/{username}")
+    public int findIdByUsername(@PathVariable String username) {
         return userDao.findIdByUsername(username);
     }
 }

@@ -1,6 +1,6 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.UserDto;
+import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,9 +42,8 @@ public class JdbcUserDao implements UserDao {
         return false;
     }
 
-
     @Override
-    public UserDto getUserById(int userId) {
+    public User getUserById(int userId) {
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE user_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         if (results.next()) {
@@ -55,13 +54,13 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public List<UserDto> findAll() {
-        List<UserDto> users = new ArrayList<>();
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user";
 
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
-            UserDto user = mapRowToUser(results);
+            User user = mapRowToUser(results);
             users.add(user);
         }
 
@@ -69,7 +68,7 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public UserDto findByUsername(String username) {
+    public User findByUsername (String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
@@ -102,8 +101,8 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
-    private UserDto mapRowToUser(SqlRowSet rs) {
-        UserDto user = new UserDto();
+    private User mapRowToUser(SqlRowSet rs) {
+        User user = new User();
         user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
@@ -112,3 +111,4 @@ public class JdbcUserDao implements UserDao {
         return user;
     }
 }
+

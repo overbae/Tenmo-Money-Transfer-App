@@ -1,11 +1,11 @@
 package com.techelevator.tenmo.services;
+
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -16,9 +16,10 @@ public class TransferService {
     public AuthenticatedUser user;
     public ConsoleService consoleService = new ConsoleService();
     public UserService userService = new UserService("http://localhost:8080/user");
-    public AccountService accountService = new AccountService("http://localhost:8080/account");
+    public AccountService accountService = new AccountService("http://localhost:8080/accounts");
 
     public TransferService(String url){
+//        BASE_URL = url + "/transfers";
         BASE_URL = url;
     }
 
@@ -180,6 +181,9 @@ public class TransferService {
             int userSelection = consoleService.promptForInt("-------------------------------------------------------------------------------------------\r\n" +
                     "Enter the user ID of the user you are sending to (or enter 0 to cancel): ");
             transfer.setUserFrom(user.getUser().getId());
+            if (userSelection==0) {
+                return;
+            }
             transfer.setUserTo(userSelection);
             Account recipientAccount = accountService.findAccountByUserId(userSelection);
             transfer.setAccountTo(recipientAccount.getAccountId());

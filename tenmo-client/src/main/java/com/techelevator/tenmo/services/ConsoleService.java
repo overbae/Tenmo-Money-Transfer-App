@@ -28,12 +28,16 @@ public class ConsoleService {
     }
 
     public void printLoginMenu() {
+        String RED_BOLD = "\033[1;31m";
+        String RESET = "\033[0m";
+
         System.out.println();
-        System.out.println("1: Register");
-        System.out.println("2: Login");
+        System.out.println("1: Register - " + RED_BOLD + "PLEASE USE ALL LOWER CASE" + RESET + " - ");
+        System.out.println("2: Login - " + RED_BOLD + "PLEASE USE ALL LOWER CASE" + RESET + " - ");
         System.out.println("0: Exit");
         System.out.println();
     }
+
 
     public void printMainMenu() {
         System.out.println();

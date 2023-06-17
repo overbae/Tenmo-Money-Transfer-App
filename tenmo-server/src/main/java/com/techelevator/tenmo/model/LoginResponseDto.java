@@ -8,9 +8,9 @@ package com.techelevator.tenmo.model;
 public class LoginResponseDto {
 
     private String token;
-    private UserDto user;
+    private User user;
 
-    public LoginResponseDto(String token, UserDto user) {
+    public LoginResponseDto(String token, User user) {
         this.token = token;
         this.user = user;
     }
@@ -23,11 +23,11 @@ public class LoginResponseDto {
         this.token = token;
     }
 
-    public UserDto getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserDto user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

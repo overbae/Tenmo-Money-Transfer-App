@@ -2,7 +2,7 @@ package com.techelevator.tenmo.model;
 
 import java.util.Objects;
 
-public class AuthorityDto {
+public class Authority {
 
    private String name;
 
@@ -14,7 +14,7 @@ public class AuthorityDto {
       this.name = name;
    }
 
-   public AuthorityDto(String name) {
+   public Authority(String name) {
       this.name = name;
    }
 
@@ -22,7 +22,7 @@ public class AuthorityDto {
    public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      AuthorityDto authority = (AuthorityDto) o;
+      Authority authority = (Authority) o;
       return name.equals(authority.name);
    }
 
@@ -34,7 +34,8 @@ public class AuthorityDto {
    @Override
    public String toString() {
       return "Authority{" +
-         "name=" + name +
-         '}';
+              "name=" + name +
+              '}';
    }
 }
+

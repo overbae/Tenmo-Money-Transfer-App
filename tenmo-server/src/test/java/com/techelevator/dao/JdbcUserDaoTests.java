@@ -1,7 +1,7 @@
 package com.techelevator.dao;
 
 import com.techelevator.tenmo.dao.JdbcUserDao;
-import com.techelevator.tenmo.model.UserDto;
+import com.techelevator.tenmo.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,9 +12,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.List;
 
 public class JdbcUserDaoTests extends BaseDaoTests {
-    protected static final UserDto USER_1 = new UserDto(1001, "user1", "user1", "USER");
-    protected static final UserDto USER_2 = new UserDto(1002, "user2", "user2", "USER");
-    private static final UserDto USER_3 = new UserDto(1003, "user3", "user3", "USER");
+    protected static final User USER_1 = new User(1001, "user1", "user1", "USER");
+    protected static final User USER_2 = new User(1002, "user2", "user2", "USER");
+    private static final User USER_3 = new User(1003, "user3", "user3", "USER");
 
     private JdbcUserDao sut;
 
@@ -53,28 +53,28 @@ public class JdbcUserDaoTests extends BaseDaoTests {
 
     @Test
     public void findByUsername_given_valid_user_returns_user() {
-        UserDto actualUser = sut.findByUsername(USER_1.getUsername());
+        User actualUser = sut.findByUsername(USER_1.getUsername());
 
         Assert.assertEquals(USER_1, actualUser);
     }
 
     @Test
     public void getUserById_given_invalid_user_id_returns_null() {
-        UserDto actualUser = sut.getUserById(-1);
+        User actualUser = sut.getUserById(-1);
 
         Assert.assertNull(actualUser);
     }
 
     @Test
     public void getUserById_given_valid_user_id_returns_user() {
-        UserDto actualUser = sut.getUserById(USER_1.getId());
+        User actualUser = sut.getUserById(USER_1.getId());
 
         Assert.assertEquals(USER_1, actualUser);
     }
 
     @Test
     public void findAll_returns_all_users() {
-        List<UserDto> users = sut.findAll();
+        List<User> users = sut.findAll();
 
         Assert.assertNotNull(users);
         Assert.assertEquals(3, users.size());
@@ -100,13 +100,13 @@ public class JdbcUserDaoTests extends BaseDaoTests {
 
     @Test
     public void create_user_creates_a_user() {
-        UserDto newUser = new UserDto(-1, "new", "user", "USER");
+        User newUser = new User(-1, "new", "user", "USER");
 
         boolean userWasCreated = sut.create(newUser.getUsername(), newUser.getPassword());
 
         Assert.assertTrue(userWasCreated);
 
-        UserDto actualUser = sut.findByUsername(newUser.getUsername());
+        User actualUser = sut.findByUsername(newUser.getUsername());
         newUser.setId(actualUser.getId());
 
         actualUser.setPassword(newUser.getPassword()); // reset password back to unhashed password for testing
