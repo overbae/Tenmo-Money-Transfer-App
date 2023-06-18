@@ -1,15 +1,15 @@
 package com.techelevator.tenmo.services;
-
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import com.techelevator.tenmo.model.User;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+
 public class TransferService {
     private final String BASE_URL;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -177,31 +177,73 @@ public class TransferService {
     public void sendBucks(AuthenticatedUser user) {
         accountService.setUser(user);
         Transfer transfer = new Transfer();
+        transfer.setTransferTypeId(2);
+        transfer.setTransferStatusId(2);
+//        transfer.setAccountFrom(1013);
+//        transfer.setAccountTo(1012);
+//        transfer.setAmount(BigDecimal.valueOf(10));
         try {
-            int userSelection = consoleService.promptForInt("-------------------------------------------------------------------------------------------\r\n" +
-                    "Enter the user ID of the user you are sending to (or enter 0 to cancel): ");
+            int userSelection = consoleService.promptForInt("Enter the user ID of the user you are sending to (or enter 0 to cancel): ");
             transfer.setUserFrom(user.getUser().getId());
-            if (userSelection==0) {
+            if (userSelection == 0) {
                 return;
             }
-            transfer.setUserTo(userSelection);
-            Account recipientAccount = accountService.findAccountByUserId(userSelection);
-            transfer.setAccountTo(recipientAccount.getAccountId());
-            transfer.setAccountFrom(accountService.findAccountByUserId(user.getUser().getId()).getAccountId());
+//            transfer.setUserTo(userSelection);
+            transfer.setAccountFrom(user.getUser().getId());
+            transfer.setAccountTo(userSelection);
+//            Account recipientAccount = accountService.findAccountByUserId(userSelection);
+//            transfer.setAccountFrom(accountService.findAccountByUserId(user.getUser().getId()).getAccountId());
+//            transfer.setAccountTo(recipientAccount.getAccountId());
             if (transfer.getAccountTo() != 0) {
                 try {
-                    transfer.setAmount(consoleService.promptForBigDecimal("Enter amount you'd like to send: "));
+                    BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you'd like to send: ");
+//                    BigDecimal amount =BigDecimal.valueOf(50);
+                    transfer.setAmount(amount);
                 } catch (NumberFormatException e) {
                     System.out.println("There was an error processing the amount");
                 }
                 // Send a transfer
-                String transferSuccess = restTemplate.exchange(BASE_URL + "/send", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
-                System.out.println(transferSuccess);
+//                String transferSuccess = restTemplate.exchange(BASE_URL + "/send", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
+//                System.out.println(transferSuccess);
+                ResponseEntity<Transfer> transferResponse = restTemplate.exchange(BASE_URL+"/send", HttpMethod.POST, makeTransferEntity(transfer, user), Transfer.class);
+                Transfer addedTransfer = transferResponse.getBody();
+                System.out.println("Transfer successful!");
             }
         } catch (Exception e) {
-            System.out.println("Something went wrong with your input.");
+            System.out.println("Something went wrong with your input." + e.getMessage());
         }
     }
+
+
+//    public void sendBucks(AuthenticatedUser user) {
+//        accountService.setUser(user);
+//        Transfer transfer = new Transfer();
+//        try {
+//            int userSelection = consoleService.promptForInt("-------------------------------------------------------------------------------------------\r\n" +
+//                    "Enter the user ID of the user you are sending to (or enter 0 to cancel): ");
+//            transfer.setUserFrom(user.getUser().getId());
+//            if (userSelection==0) {
+//                return;
+//            }
+//            transfer.setUserTo(userSelection);
+//            Account recipientAccount = accountService.findAccountByUserId(userSelection);
+//            transfer.setAccountTo(recipientAccount.getAccountId());
+//            transfer.setAccountFrom(accountService.findAccountByUserId(user.getUser().getId()).getAccountId());
+//            if (transfer.getAccountTo() != 0) {
+//                try {
+//                    transfer.setAmount(consoleService.promptForBigDecimal("Enter amount you'd like to send: "));
+//                } catch (NumberFormatException e) {
+//                    System.out.println("There was an error processing the amount");
+//                }
+//                // Send a transfer
+//                String transferSuccess = restTemplate.exchange(BASE_URL + "/send", HttpMethod.POST, makeTransferEntity(transfer, user), String.class).getBody();
+//                System.out.println(transferSuccess);
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Something went wrong with your input.");
+//        }
+//    }
+
 
 
     public HttpEntity<Void> makeAuthEntity(AuthenticatedUser user) {

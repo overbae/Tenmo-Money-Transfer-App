@@ -27,7 +27,7 @@ public class AuthenticationService {
         AuthenticatedUser user = null;
         try {
             ResponseEntity<AuthenticatedUser> response =
-                    restTemplate.exchange(baseUrl + "login", HttpMethod.POST, entity, AuthenticatedUser.class);
+                    restTemplate.exchange(baseUrl + "/login", HttpMethod.POST, entity, AuthenticatedUser.class);
             user = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
@@ -39,13 +39,14 @@ public class AuthenticationService {
         HttpEntity<UserCredentials> entity = createCredentialsEntity(credentials);
         boolean success = false;
         try {
-            restTemplate.exchange(baseUrl + "register", HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(baseUrl + "/register", HttpMethod.POST, entity, Void.class);
             success = true;
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
         return success;
     }
+
 
     private HttpEntity<UserCredentials> createCredentialsEntity(UserCredentials credentials) {
         HttpHeaders headers = new HttpHeaders();
@@ -56,7 +57,7 @@ public class AuthenticationService {
         HttpEntity<UserCredentials> entity = createCredentialsEntity(credentials);
         boolean success = false;
         try {
-            restTemplate.exchange(baseUrl + "register-admin", HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(baseUrl + "/register-admin", HttpMethod.POST, entity, Void.class);
             success = true;
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());
@@ -64,3 +65,4 @@ public class AuthenticationService {
         return success;
     }
 }
+

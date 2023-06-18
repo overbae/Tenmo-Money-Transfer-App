@@ -102,7 +102,7 @@ public class App {
     private void viewCurrentBalance() {
         BigDecimal balance = accountService.getBalance(currentUser);
         if (balance != null) {
-            System.out.println("\n\033[1m\033[93mYour current account balance is: $" + balance + "\033[0m");
+            System.out.println("\n\033[1m\033[92mYour current account balance is: $" + balance + "\033[0m");
         } else {
             System.out.println("Failed to retrieve the account balance.");
         }

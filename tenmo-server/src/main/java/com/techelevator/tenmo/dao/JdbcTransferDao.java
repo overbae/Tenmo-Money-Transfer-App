@@ -1,4 +1,5 @@
 package com.techelevator.tenmo.dao;
+
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -139,4 +140,3 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 }
-

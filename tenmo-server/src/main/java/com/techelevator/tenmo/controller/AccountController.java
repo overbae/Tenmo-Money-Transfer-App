@@ -68,7 +68,7 @@ public class AccountController {
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/transfers/send")
+    @PostMapping("/transfer/send")
     public Transfer sendTransfer(@RequestBody Transfer transfer) {
         if (transfer.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new TransferInvalidException("Transfer amount must be greater than zero.");

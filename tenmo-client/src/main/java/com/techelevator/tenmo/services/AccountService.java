@@ -1,4 +1,5 @@
 package com.techelevator.tenmo.services;
+
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
@@ -71,24 +72,15 @@ public class AccountService {
         return account;
     }
 
+    public Transfer sendBucks(AuthenticatedUser user, int destinationUserId, BigDecimal amount) {
+        Transfer transfer = new Transfer();
+        transfer.setUserFrom(user.getUser().getId());
+        transfer.setUserTo(destinationUserId);
+        transfer.setAmount(amount);
+        transfer.setAccountFrom(findAccountByUserId(user.getUser().getId()).getAccountId());
+        Account recipientAccount = findAccountByUserId(destinationUserId);
+        transfer.setAccountTo(recipientAccount.getAccountId());
 
-    //    public Transfer sendBucks(int destinationUserId, BigDecimal amount) {
-//        Transfer transfer = new Transfer(user.getUser().getId(), destinationUserId, amount);
-//        try {
-//            ResponseEntity<Transfer> response = restTemplate.exchange(
-//                    baseUrl + "/accounts/transfer/send",
-//                    HttpMethod.POST,
-//                    makeAccountEntity(transfer),
-//                    Transfer.class
-//            );
-//            return response.getBody();
-//        } catch (RestClientException e) {
-//            System.out.println("Failed to send money. Please try again.");
-//        }
-//        return null;
-//    }
-    public Transfer sendBucks(int destinationUserId, BigDecimal amount) {
-        Transfer transfer = new Transfer(user.getUser().getId(), destinationUserId, amount);
         try {
             String url = baseUrl + "/transfer/send";
             ResponseEntity<Transfer> response = restTemplate.exchange(
@@ -111,6 +103,23 @@ public class AccountService {
         return null;
     }
 
+
+
+//    public Transfer sendBucks(int destinationUserId, BigDecimal amount) {
+//        Transfer transfer = new Transfer(user.getUser().getId(), destinationUserId, amount);
+//        try {
+//            ResponseEntity<Transfer> response = restTemplate.exchange(
+//                    baseUrl + "/accounts/transfer/send",
+//                    HttpMethod.POST,
+//                    makeAccountEntity(transfer),
+//                    Transfer.class
+//            );
+//            return response.getBody();
+//        } catch (RestClientException e) {
+//            System.out.println("Failed to send money. Please try again.");
+//        }
+//        return null;
+//    }
 
 
 

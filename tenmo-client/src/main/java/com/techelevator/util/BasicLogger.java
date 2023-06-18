@@ -12,23 +12,31 @@ public class BasicLogger {
 
 	private static PrintWriter pw = null;
 	private static final String DIRECTORY_NAME = "tenmo-client";
-	
+
 	public static void log(String message) {
 		try {
 			if (pw == null) {
 				String userDir = System.getProperty("user.dir");
 
-				if(!userDir.endsWith(DIRECTORY_NAME)) {
+				if (!userDir.endsWith(DIRECTORY_NAME)) {
 					userDir += File.separator + DIRECTORY_NAME;
 				}
+
+//				String logDirectoryName = userDir + File.separator + "logs";
+//				File logDirectory = new File(logDirectoryName);
+//				if (!logDirectory.exists()) {
+//					logDirectory.mkdirs(); // Create the logs directory if it doesn't exist
+//				}
+//
+//				String logFilename = logDirectoryName + File.separator + LocalDate.now().format(DateTimeFormatter.ISO_DATE) + ".log";
+//				pw = new PrintWriter(new FileOutputStream(logFilename, true));
 
 				String logFilename = userDir + File.separator + "logs/" + LocalDate.now().format(DateTimeFormatter.ISO_DATE) + ".log";
 				pw = new PrintWriter(new FileOutputStream(logFilename, true));
 			}
 			pw.println(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " " + message);
 			pw.flush();
-		}
-		catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			throw new BasicLoggerException(e.getMessage());
 		}
 	}

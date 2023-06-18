@@ -32,4 +32,3 @@ public interface AccountDao {
     Transfer sendTransfer(Transfer transfer);
 }
 
-
