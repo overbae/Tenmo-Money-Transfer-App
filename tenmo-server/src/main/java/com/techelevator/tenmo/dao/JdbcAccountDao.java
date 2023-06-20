@@ -1,13 +1,12 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -19,120 +18,73 @@ public class JdbcAccountDao implements AccountDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
     @Override
-    public BigDecimal getBalanceByUserId(int userId) {
-        String sql = "SELECT balance FROM account WHERE user_id = ?";
-        return jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
+    public List<Account> findAll() {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT account_id, user_id, balance FROM account;";
+
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql);
+        while (rows.next()) {
+            Account account = mapRowToAccount(rows);
+            accounts.add(account);
+        }
+        return accounts;
     }
 
     @Override
-    public BigDecimal getBalanceByAccountId(int accountId) {
-        String sql = "SELECT balance FROM account WHERE account_id = ?";
-        return jdbcTemplate.queryForObject(sql, BigDecimal.class, accountId);
-    }
-
-    @Override
-    public BigDecimal getBalance(String username) {
-        String sql = "SELECT balance FROM account WHERE user_id = (SELECT user_id FROM tenmo_user WHERE username = ?)";
-        return jdbcTemplate.queryForObject(sql, BigDecimal.class, username);
-    }
-
-    @Override
-    public void addToBalance(int accountId, BigDecimal amount) {
-        String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?";
-        jdbcTemplate.update(sql, amount, accountId);
-    }
-
-    @Override
-    public void subtractFromBalance(int accountId, BigDecimal amount) {
-        String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?";
-        jdbcTemplate.update(sql, amount, accountId);
-    }
-
-    @Override
-    public Account findAccountByUserId(int userId) {
-        String sql = "SELECT * FROM account WHERE user_id = ?";
-        return jdbcTemplate.queryForObject(sql, this::mapRowToAccount, userId);
-    }
-
-    @Override
-    public Account findAccountByAccountId(int accountId) {
-        String sql = "SELECT * FROM account WHERE account_id = ?";
-        return jdbcTemplate.queryForObject(sql, this::mapRowToAccount, accountId);
-    }
-
-    @Override
-    public Account findAccountByUsername(String username) {
-        String sql = "SELECT a.* FROM account a JOIN tenmo_user u ON a.user_id = u.user_id WHERE u.username = ?";
-        return jdbcTemplate.queryForObject(sql, this::mapRowToAccount, username);
-    }
-
-    @Override
-    public void deleteAccount(int accountId) {
-        String sql = "DELETE FROM account WHERE account_id = ?";
-        jdbcTemplate.update(sql, accountId);
-    }
-
-    @Override
-    public Account updateAccount(int accountId, Account account) {
-        String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
-        jdbcTemplate.update(sql, account.getBalance(), accountId);
+    public Account getAccountById(int id) {
+        Account account = null;
+        String sql = "SELECT account_id, user_id, balance FROM account WHERE account_id = ?;";
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, id);
+        if (rows.next()) {
+            account = mapRowToAccount(rows);
+        }
         return account;
     }
 
     @Override
-    public Account createAccount(Account account) {
-        String sql = "INSERT INTO account (user_id, balance) VALUES (?, ?) RETURNING account_id";
-        int newAccountId = jdbcTemplate.queryForObject(sql, Integer.class, account.getUserId(), account.getBalance());
-        account.setAccountId(newAccountId);
+    public Account findByUserId(int id) {
+        Account account = null;
+        String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?;";
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, id);
+        if (rows.next()) {
+            account = mapRowToAccount(rows);
+        }
         return account;
     }
 
     @Override
-    public List<Account> getAllAccounts() {
-        String sql = "SELECT * FROM account";
-        return jdbcTemplate.query(sql, this::mapRowToAccount);
+    public List<Account> findByUsername(String username) {
+        List<Account> accounts = new ArrayList<>();
+        if (username == null) throw new IllegalArgumentException("Username cannot be null");
+
+        String sql = "SELECT account_id, user_id, balance FROM account " +
+                "JOIN tenmo_user USING(user_id) " +
+                "WHERE username = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
+        while (rowSet.next()) {
+            Account account = mapRowToAccount(rowSet);
+            accounts.add(account);
+        }
+        if (!accounts.isEmpty()) {
+            return accounts;
+        }
+        throw new UsernameNotFoundException("Account with username " + username + " was not found.");
     }
 
     @Override
-    public List<Transfer> getTransfersByAccountId(int accountId) {
-        String sql = "SELECT * FROM transfer WHERE account_from = ? OR account_to = ?";
-        return jdbcTemplate.query(sql, this::mapRowToTransfer, accountId, accountId);
-    }
-
-    @Override
-    public Transfer getTransferByTransferId(int transferId) {
-        String sql = "SELECT * FROM transfer WHERE transfer_id = ?";
-        return jdbcTemplate.queryForObject(sql, this::mapRowToTransfer, transferId);
-    }
-
-    @Override
-    public Transfer sendTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (?, ?, ?, ?, ?) RETURNING transfer_id";
-        long newTransferId = jdbcTemplate.queryForObject(sql, Long.class, transfer.getTransferTypeId(),
-                transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
-        transfer.setTransferId(newTransferId);
-        return transfer;
+    public boolean update(Account account) {
+        String sql = "UPDATE account SET balance = ? WHERE account_id = ? ";
+        return jdbcTemplate.update(sql, account.getBalance(), account.getAccountID()) == 1;
     }
 
 
-    private Account mapRowToAccount(ResultSet rs, int rowNum) throws SQLException {
+    private Account mapRowToAccount(SqlRowSet rowSet) {
         Account account = new Account();
-        account.setAccountId(rs.getInt("account_id"));
-        account.setUserId(rs.getInt("user_id"));
-        account.setBalance(rs.getBigDecimal("balance"));
+        account.setAccountID(rowSet.getInt("account_id"));
+        account.setUserID(rowSet.getInt("user_id"));
+        account.setBalance(rowSet.getBigDecimal("balance"));
         return account;
-    }
-
-    private Transfer mapRowToTransfer(ResultSet rs, int rowNum) throws SQLException {
-        Transfer transfer = new Transfer();
-        transfer.setTransferId(rs.getLong("transfer_id"));
-        transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
-        transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
-        transfer.setAccountFrom(rs.getInt("account_from"));
-        transfer.setAccountTo(rs.getInt("account_to"));
-        transfer.setAmount(rs.getBigDecimal("amount"));
-        return transfer;
     }
 }

@@ -27,9 +27,9 @@ public class JdbcUserDao implements UserDao {
     public int findIdByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
-        int userId;
+        Integer userId;
         try {
-            userId = jdbcTemplate.queryForObject("SELECT user_id FROM tenmo_user WHERE username = ?", int.class, username);
+            userId = jdbcTemplate.queryForObject("SELECT user_id FROM tenmo_user WHERE username = ?", Integer.class, username);
         } catch (NullPointerException | EmptyResultDataAccessException e) {
             throw new UsernameNotFoundException("User " + username + " was not found.");
         }
@@ -38,9 +38,19 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public boolean createAdmin(String username, String password) {
-        return false;
-    }
+    public String getUserByAccount(int accountId){
+        String username = "";
+        String sql = "SELECT user_id, username, password_hash FROM tenmo_user " +
+                "JOIN account USING (user_id) " +
+                "WHERE account_id = ?";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
+        if(result.next()){
+            User user = mapRowToUser(result);
+            username = user.getUsername();
+        }
+        return username;
+   }
+
 
     @Override
     public User getUserById(int userId) {
@@ -90,7 +100,6 @@ public class JdbcUserDao implements UserDao {
 
         if (newUserId == null) return false;
 
-        // create account
         sql = "INSERT INTO account (user_id, balance) values(?, ?)";
         try {
             jdbcTemplate.update(sql, newUserId, STARTING_BALANCE);

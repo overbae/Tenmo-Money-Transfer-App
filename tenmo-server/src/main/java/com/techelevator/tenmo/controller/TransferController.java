@@ -1,60 +1,62 @@
 package com.techelevator.tenmo.controller;
 
+import com.techelevator.tenmo.dao.JdbcTransferDao;
+import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.TransferDao;
+import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/transfer")
+@RequestMapping("/dashboard/transfer")
+@PreAuthorize("isAuthenticated()")
 public class TransferController {
     private final TransferDao transferDao;
+    private final UserDao userDao;
 
-    public TransferController(TransferDao transferDao) {
+    public TransferController(JdbcTransferDao transferDao, JdbcUserDao userDao) {
         this.transferDao = transferDao;
+        this.userDao = userDao;
     }
-
-    @PostMapping("/send")
     @ResponseStatus(HttpStatus.CREATED)
-    public Transfer sendTransfer(@RequestBody Transfer transfer) {
-        int accountFrom = transferDao.getAccountIdByUserId(transfer.getAccountFrom());
-        int accountTo = transferDao.getAccountIdByUserId(transfer.getAccountTo());
-        transfer.setAccountFrom(accountFrom);
-        transfer.setAccountTo(accountTo);
-        return transferDao.sendTransfer(transfer);
+    @PostMapping
+    public Transfer createTransfer(@RequestBody @Valid Transfer transfer) {
+        transfer = transferDao.createTransfer(transfer);
+        return transfer;
     }
 
-    @GetMapping("/{transferId}")
-    public Transfer getTransferById(@PathVariable int transferId) {
-        return transferDao.getTransferById(transferId);
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(path = "/transfers_history")
+    public List<Transfer> getTransfers(Principal principal) {
+        int id = userDao.findIdByUsername(principal.getName());
+        return transferDao.getAllTransfersOfUserId(id);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<Transfer> getTransfersByUserId(@PathVariable int userId) {
-        return transferDao.getTransfersByUserId(userId);
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(path = "/pending_transfers")
+    public List<Transfer> getPendingTransfers(Principal principal) {
+        int id = userDao.findIdByUsername(principal.getName());
+        return transferDao.getPendingTransfers(id);
     }
 
-    @GetMapping("/all")
-    public List<Transfer> seeAllTransfers() {
-        return transferDao.seeAllTransfers();
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(path = "/{id}")
+    public Transfer getTransferById(@PathVariable int id) {
+        return transferDao.getTransfer(id);
     }
 
-    @PostMapping("/request")
-    @ResponseStatus(HttpStatus.CREATED)
-    public String requestTransfer(@RequestParam int userFrom, @RequestParam int userTo, @RequestParam BigDecimal amount) {
-        return transferDao.requestTransfer(userFrom, userTo, amount);
-    }
-
-    @GetMapping("/pending/{userId}")
-    public List<Transfer> getPendingRequests(@PathVariable int userId) {
-        return transferDao.getPendingRequests(userId);
-    }
-
-    @PutMapping("/{transferId}")
-    public String updateTransferRequest(@RequestBody Transfer transfer, @PathVariable int transferId) {
-        return transferDao.updateTransferRequest(transfer, transferId);
+    @PutMapping("/transfer_approved")
+    public ResponseEntity<Boolean> updateTransfer(@RequestBody @Valid Transfer transfer) {
+        if (transferDao.updateTransfer(transfer)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

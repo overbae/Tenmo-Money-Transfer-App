@@ -8,7 +8,10 @@ public interface UserDao {
 
     List<User> findAll();
 
-    boolean createAdmin(String username, String password);
+//    boolean createAdmin(String username, String password);
+//    User getUserByAccount(String accountId);
+
+    String getUserByAccount(int accountId);
 
     User getUserById(int id);
 

@@ -1,64 +1,39 @@
 package com.techelevator.tenmo.model;
 
-import java.math.BigDecimal;
-import java.util.Objects;
+import lombok.*;
 
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
-    private int accountId;
-    private int userId;
+
+    private int accountID;
+    private int userID;
     private BigDecimal balance;
 
-    public Account() {
+
+    public void sendMoney(BigDecimal amount) {
+        BigDecimal newBalance = balance.subtract(amount);
+
+        if (newBalance.compareTo(BigDecimal.ZERO) >= 0) {
+            this.balance = newBalance;
+        } else {
+            System.out.println("Insufficient funds");
+        }
     }
 
-    public Account(int accountId, int userId, BigDecimal balance) {
-        this.accountId = accountId;
-        this.userId = userId;
-        this.balance = balance;
+    public void receiveMoney(BigDecimal amount) {
+        balance = balance.add(amount);
     }
 
-    public int getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Account)) return false;
-        Account account = (Account) o;
-        return getAccountId() == account.getAccountId() && getUserId() == account.getUserId() && getBalance().equals(account.getBalance());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getAccountId(), getUserId(), getBalance());
-    }
 
     @Override
     public String toString() {
         return "Account{" +
-                "accountId=" + accountId +
-                ", userId=" + userId +
+                "accountID=" + accountID +
                 ", balance=" + balance +
                 '}';
     }

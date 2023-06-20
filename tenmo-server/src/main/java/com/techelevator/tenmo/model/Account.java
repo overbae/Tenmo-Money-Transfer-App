@@ -1,36 +1,41 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class Account {
-    private int accountId;
-    private int userId;
+    @NotNull
+    private int accountID;
+    @NotNull
+    private int userID;
+    @NotNull
     private BigDecimal balance;
 
-    public Account() {
-    }
-
-    public Account(int accountId, int userId, BigDecimal balance) {
-        this.accountId = accountId;
-        this.userId = userId;
+    public Account(int accountID, int userID, BigDecimal balance) {
+        this.accountID = accountID;
+        this.userID = userID;
         this.balance = balance;
     }
 
-    // Getters and setters
-    public int getAccountId() {
-        return accountId;
+    public Account() {
+
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+
+    public int getAccountID() {
+        return accountID;
     }
 
-    public int getUserId() {
-        return userId;
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public int getUserID() {
+        return userID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public BigDecimal getBalance() {

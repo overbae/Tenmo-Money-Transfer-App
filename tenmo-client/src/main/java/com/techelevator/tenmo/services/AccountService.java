@@ -3,167 +3,149 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.util.BasicLogger;
 import org.springframework.http.*;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+
 
 public class AccountService {
     private final String baseUrl;
-    private final RestTemplate restTemplate = new RestTemplate();
-    private AuthenticatedUser user;
+    private RestTemplate restTemplate = new RestTemplate();
+    private AuthenticatedUser authenticatedUser;
 
-    public AccountService(String baseUrl) {
-//        System.out.println(baseUrl);
-        this.baseUrl = baseUrl;
+    public AccountService(String url) {
+        this.baseUrl = url;
+        this.restTemplate = new RestTemplate();
     }
 
-    public void setUser(AuthenticatedUser user) {
-        this.user = user;
+    public AuthenticatedUser getAuthenticatedUser() {
+        return authenticatedUser;
     }
 
-    public BigDecimal getBalance(AuthenticatedUser user) {
-        BigDecimal balance = new BigDecimal(0);
+    public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
+    }
+
+    public void updateAccount(Account account) {
         try {
-            setUser(user);
-            // Retrieve the account balance for the authenticated user
-            String url = baseUrl + "/balance";  // Remove the redundant "/accounts" part
-            ResponseEntity<BigDecimal> response = restTemplate.exchange(url, HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
-            balance = response.getBody();
-
-//            System.out.println("DEBUG: GET " + url);
-//            System.out.println("DEBUG: Response status: " + response.getStatusCodeValue());
-//            System.out.println("DEBUG: Response body: " + balance);
-        } catch (RestClientException e) {
-            System.out.println("Your balance could not be retrieved.");
-            System.out.println("DEBUG: Exception message: " + e.getMessage());
+            HttpEntity<Account> entity = makeAccountEntity(account);
+            restTemplate.put(baseUrl + "/dashboard/account", entity);
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
         }
-        return balance;
     }
 
-
-
-//    public Account findAccountByUserId(int userId) {
-//        Account account = null;
-//        try {
-//            account = restTemplate.exchange(baseUrl + "/user/" + userId, HttpMethod.GET, makeAuthEntity(), Account.class).getBody();
-//        } catch (RestClientException e) {
-//            System.out.println("This account could not be found.");
-//        }
-//        return account;
-//    }
-
-    public Account findAccountByUserId(int userId) {
-        Account account = null;
+    public Account getAccount(int id) {
         try {
-            String url = baseUrl + "/user/" + userId;
-            ResponseEntity<Account> response = restTemplate.exchange(url, HttpMethod.GET, makeAuthEntity(), Account.class);
-
-//                System.out.println("DEBUG: GET " + url);
-//                System.out.println("DEBUG: Response status: " + response.getStatusCodeValue());
-//                System.out.println("DEBUG: Response body: " + response.getBody());
-
-            account = response.getBody();
-        } catch (RestClientException e) {
-            System.out.println("This account could not be found.");
-            System.out.println("DEBUG: Exception message: " + e.getMessage());
-        }
-        return account;
-    }
-
-    public Transfer sendBucks(AuthenticatedUser user, int destinationUserId, BigDecimal amount) {
-        Transfer transfer = new Transfer();
-        transfer.setUserFrom(user.getUser().getId());
-        transfer.setUserTo(destinationUserId);
-        transfer.setAmount(amount);
-        transfer.setAccountFrom(findAccountByUserId(user.getUser().getId()).getAccountId());
-        Account recipientAccount = findAccountByUserId(destinationUserId);
-        transfer.setAccountTo(recipientAccount.getAccountId());
-
-        try {
-            String url = baseUrl + "/transfer/send";
-            ResponseEntity<Transfer> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    makeAccountEntity(transfer),
-                    Transfer.class
-            );
-
-            System.out.println("DEBUG: POST " + url);
-            System.out.println("DEBUG: Request body: " + transfer);
-            System.out.println("DEBUG: Response status: " + response.getStatusCodeValue());
-            System.out.println("DEBUG: Response body: " + response.getBody());
-
-            return response.getBody();
-        } catch (RestClientException e) {
-            System.out.println("Failed to send money. Please try again.");
-            System.out.println("DEBUG: Exception message: " + e.getMessage());
-        }
-        return null;
-    }
-
-
-
-//    public Transfer sendBucks(int destinationUserId, BigDecimal amount) {
-//        Transfer transfer = new Transfer(user.getUser().getId(), destinationUserId, amount);
-//        try {
-//            ResponseEntity<Transfer> response = restTemplate.exchange(
-//                    baseUrl + "/accounts/transfer/send",
-//                    HttpMethod.POST,
-//                    makeAccountEntity(transfer),
-//                    Transfer.class
-//            );
-//            return response.getBody();
-//        } catch (RestClientException e) {
-//            System.out.println("Failed to send money. Please try again.");
-//        }
-//        return null;
-//    }
-
-
-
-    public Transfer requestBucks(int sourceUserId, BigDecimal amount) {
-        Transfer transfer = new Transfer(sourceUserId, user.getUser().getId(), amount);
-        try {
-            ResponseEntity<Transfer> response = restTemplate.exchange(
-                    baseUrl + "accounts/transfer/request",
-                    HttpMethod.POST,
-                    makeAccountEntity(transfer),
-                    Transfer.class
+            ResponseEntity<Account> response = restTemplate.exchange(
+                    baseUrl + "/dashboard/account/" + id,
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Account.class
             );
             return response.getBody();
-        } catch (RestClientException e) {
-            System.out.println("Failed to request money. Please try again.");
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return null;
         }
-        return null;
     }
 
-    public Transfer[] getTransferHistory() {
+    public Account getAccountById(int id) {
         try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(
-                    baseUrl + "accounts/transfer",
+            ResponseEntity<Account> response = restTemplate.exchange(
+                    baseUrl + "/dashboard/get_account/" + id,
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Account.class
+            );
+            return response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Account> getUserAccounts() {
+        try {
+            ResponseEntity<Account[]> response = restTemplate.exchange(
+                    baseUrl + "/dashboard/accounts",
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Account[].class
+            );
+            return Arrays.asList(response.getBody());
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Transfer> getTransfers() {
+        try {
+            ResponseEntity<Transfer[]> responseEntity = restTemplate.exchange(
+                    baseUrl + "/dashboard/transfer/transfers_history",
                     HttpMethod.GET,
                     makeAuthEntity(),
                     Transfer[].class
             );
-            return response.getBody();
-        } catch (RestClientException e) {
-            System.out.println("Failed to retrieve transfer history.");
+            return Arrays.asList(responseEntity.getBody());
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Transfer> getPendingTransfers() {
+        try {
+            ResponseEntity<Transfer[]> responseEntity = restTemplate.exchange(
+                    baseUrl + "/dashboard/transfer/pending_transfers",
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Transfer[].class
+            );
+            return Arrays.asList(responseEntity.getBody());
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return null;
+        }
+    }
+
+    public Account getUserAccount() {
+        List<Account> accounts = getUserAccounts();
+        if (accounts != null && accounts.size() == 1) {
+            return accounts.get(0);
         }
         return null;
     }
 
-    public HttpEntity<Void> makeAuthEntity() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(user.getToken());
+    public boolean hasMultipleAccounts(List<Account> accounts) {
+        return accounts != null && accounts.size() > 1;
+    }
+
+    public boolean isAmountInAccountRange(BigDecimal amountSend, BigDecimal accountBalance) {
+        return amountSend.compareTo(accountBalance) > 0;
+    }
+
+    private HttpEntity<Account> makeAccountEntity(Account account) {
+        HttpHeaders headers = createHeadersWithToken();
+        return new HttpEntity<>(account, headers);
+    }
+
+    private HttpEntity<Void> makeAuthEntity() {
+        HttpHeaders headers = createHeadersWithToken();
         return new HttpEntity<>(headers);
     }
 
-    public HttpEntity<Transfer> makeAccountEntity(Transfer transfer) {
+    private HttpHeaders createHeadersWithToken() {
         HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authenticatedUser.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(user.getToken());
-        return new HttpEntity<>(transfer, headers);
+        return headers;
     }
 }
