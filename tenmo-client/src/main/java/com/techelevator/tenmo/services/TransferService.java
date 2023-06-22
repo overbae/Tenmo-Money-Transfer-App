@@ -15,15 +15,18 @@ public class TransferService {
     private RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser authenticatedUser;
 
+    // Constructor to initialize the TransferService with a base URL
     public TransferService(String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
+    // Creates a new transfer by making a POST request to the server
     public Transfer createTransfer(Transfer transfer) {
         HttpEntity<Transfer> entity = createTransferEntity(transfer);
         Transfer returnedTransfer = null;
 
         try {
+            // Send the POST request and retrieve the created transfer
             returnedTransfer = restTemplate.postForObject(baseUrl + "dashboard/transfer", entity, Transfer.class);
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
@@ -31,12 +34,13 @@ public class TransferService {
         return returnedTransfer;
     }
 
-
+    // Updates an existing transfer by making a PUT request to the server
     public boolean updateTransfer(Transfer transfer) {
         HttpEntity<Transfer> entity = createTransferEntity(transfer);
         boolean wasUpdated = false;
 
         try {
+            // Send the PUT request to update the transfer
             restTemplate.put(baseUrl + "/dashboard/transfer/transfer_approved", entity);
             wasUpdated = true;
         } catch (RestClientResponseException | ResourceAccessException e) {
@@ -45,6 +49,7 @@ public class TransferService {
         return wasUpdated;
     }
 
+    // Checks if a transfer ID is valid
     public boolean isTransferValid(int transferId) {
         if (transferId == 0) {
             System.out.println("Returning to the main menu...");
@@ -60,6 +65,7 @@ public class TransferService {
         return true;
     }
 
+    // Checks if a transfer choice is valid
     public boolean isTransferChoiceValid(int transferChoice) {
         if (transferChoice == 0) {
             System.out.println("Returning to the main menu...");
@@ -73,10 +79,13 @@ public class TransferService {
         }
         return true;
     }
+
+    // Retrieves a transfer by its ID
     public Transfer getTransferById(int id) {
         Transfer transfer = null;
 
         try {
+            // Send a GET request to retrieve the transfer by ID
             ResponseEntity<Transfer> response = restTemplate.exchange(baseUrl + "/dashboard/transfer/" + id, HttpMethod.GET, makeAuthEntity(), Transfer.class);
             transfer = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
@@ -85,10 +94,12 @@ public class TransferService {
         return transfer;
     }
 
+    // Sets the authenticated user for the TransferService
     public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
     }
 
+    // Sets the details of a transfer
     public Transfer setTransferDetails(Transfer transfer, int type, int status, int accountFrom, int accountTo, BigDecimal amount) {
         transfer.setTransferTypeId(type);
         transfer.setTransferStatusId(status);
@@ -98,7 +109,7 @@ public class TransferService {
         return transfer;
     }
 
-
+    // Creates an HttpEntity with the Transfer object and authentication headers
     private HttpEntity<Transfer> createTransferEntity(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -106,6 +117,7 @@ public class TransferService {
         return new HttpEntity<>(transfer, headers);
     }
 
+    // Creates an HttpEntity with authentication headers only
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authenticatedUser.getToken());

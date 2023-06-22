@@ -18,7 +18,7 @@ public class JdbcAccountDao implements AccountDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
+    // Retrieves all accounts from the database
     @Override
     public List<Account> findAll() {
         List<Account> accounts = new ArrayList<>();
@@ -32,6 +32,7 @@ public class JdbcAccountDao implements AccountDao {
         return accounts;
     }
 
+    // Retrieves an account by its ID
     @Override
     public Account getAccountById(int id) {
         Account account = null;
@@ -43,6 +44,7 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
+    // Retrieves an account by the user ID
     @Override
     public Account findByUserId(int id) {
         Account account = null;
@@ -54,6 +56,7 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
+    // Retrieves accounts by username
     @Override
     public List<Account> findByUsername(String username) {
         List<Account> accounts = new ArrayList<>();
@@ -73,13 +76,14 @@ public class JdbcAccountDao implements AccountDao {
         throw new UsernameNotFoundException("Account with username " + username + " was not found.");
     }
 
+    // Updates an account's balance
     @Override
     public boolean update(Account account) {
         String sql = "UPDATE account SET balance = ? WHERE account_id = ? ";
         return jdbcTemplate.update(sql, account.getBalance(), account.getAccountID()) == 1;
     }
 
-
+    // Maps a row from the database to an Account object
     private Account mapRowToAccount(SqlRowSet rowSet) {
         Account account = new Account();
         account.setAccountID(rowSet.getInt("account_id"));

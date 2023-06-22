@@ -1,2 +1,6 @@
 2023-06-20T15:06:09.774459 404 : [{"timestamp":"2023-06-20T20:06:09.759+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/0"}]
 2023-06-20T15:50:02.257401 404 : [{"timestamp":"2023-06-20T20:50:02.241+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/0"}]
+2023-06-20T16:15:50.763723 404 : [{"timestamp":"2023-06-20T21:15:50.746+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/0"}]
+2023-06-20T16:16:01.492904 404 : [{"timestamp":"2023-06-20T21:16:01.491+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/0"}]
+2023-06-20T22:06:05.214398 404 : [{"timestamp":"2023-06-21T03:06:05.175+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/300000"}]
+2023-06-20T22:08:55.748029 401 : [no body]

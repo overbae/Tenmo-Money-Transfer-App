@@ -105,22 +105,34 @@ public class App {
     }
 
     private void viewTransferHistory() {
+        // Retrieve the current account, transfer list, and associated usernames
         Account currentAccount = accountService.getUserAccount();
         List<Transfer> transfers = accountService.getTransfers();
-        List<String> userFromTransfers = userService.getUsersFromTransfers(transfers);
+        List<String> userFromTransfers = userService.getUsersFromTransfers(transfers, currentAccount);
+
+        // Print the transfer history with formatted details
         consoleService.printTransferHistory(transfers, userFromTransfers, currentAccount);
+
+        // Prompt the user to enter a transfer ID for detailed view
         int transferId = consoleService.promptForInt("Please enter transfer ID to view details (0 to cancel): ");
 
+        // Check if the transfer ID is valid, otherwise return to the main menu
         if (!transferService.isTransferValid(transferId)) {
             mainMenu();
         }
 
+        // Retrieve the transfer details and associated usernames
         Transfer transfer = transferService.getTransferById(transferId);
         String userFrom = userService.getUsernameFromAccount(transfer.getAccountTo());
         String userTo = userService.getUsernameFromAccount(transfer.getAccountFrom());
+
+        // Print the detailed transfer information
         consoleService.printTransferDetails(transfer, userFrom, userTo);
     }
-
+    // this method retrieves pending transfers, displays them to the user along with relevant
+    // information, and prompts the user to enter the transfer ID.
+    // It will determine if the ID entered is valid, display the options and retrieve the
+    // transfer and recipient's account details.
     private void viewPendingRequests() {
         List<Transfer> transfers = accountService.getPendingTransfers();
         List<String> usersFromTransfers = new ArrayList<>();
@@ -158,6 +170,9 @@ public class App {
         beginTransferProcess(TRANSFER_TYPE_REQUEST);
     }
 
+   // this method handles the processing of a pending transfer by allowing the user to choose whether
+   // to approve or reject the transfer. It updates the transfer status, performs necessary actions based
+   // on the choice and account balance, updates the accounts, and provides feedback to the user.
     public void startPendingTransferProcess(Transfer transfer, Account currentAccount, Account receiverAccount,
                                             boolean isAmountInRange) {
         int transferChoice = consoleService.promptForInt("Please choose an option: ");
@@ -200,7 +215,9 @@ public class App {
         mainMenu();
 
     }
-
+    // This method handles the process of initiating a money transfer or request between users.
+    // It prompts for user input, validates the input, performs the necessary actions based on the transfer type,
+    // and provides feedback to the user.
     private void beginTransferProcess(int transferType) {
         User current = currentUser.getUser();
         String RED_BOLD = "\033[1;31m";

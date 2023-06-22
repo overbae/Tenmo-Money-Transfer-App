@@ -23,6 +23,7 @@ public class JdbcUserDao implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // Finds the user ID associated with a given username
     @Override
     public int findIdByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
@@ -37,6 +38,7 @@ public class JdbcUserDao implements UserDao {
         return userId;
     }
 
+    // Retrieves the username associated with a given account ID
     @Override
     public String getUserByAccount(int accountId){
         String username = "";
@@ -49,9 +51,10 @@ public class JdbcUserDao implements UserDao {
             username = user.getUsername();
         }
         return username;
-   }
+    }
 
 
+    // Retrieves a user by their user ID
     @Override
     public User getUserById(int userId) {
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE user_id = ?";
@@ -63,6 +66,7 @@ public class JdbcUserDao implements UserDao {
         }
     }
 
+    // Retrieves all users
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
@@ -77,8 +81,9 @@ public class JdbcUserDao implements UserDao {
         return users;
     }
 
+    // Retrieves a user by their username
     @Override
-    public User findByUsername (String username) {
+    public User findByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
@@ -89,6 +94,7 @@ public class JdbcUserDao implements UserDao {
         throw new UsernameNotFoundException("User " + username + " was not found.");
     }
 
+    // Creates a new user with the given username and password
     @Override
     public boolean create(String username, String password) {
 
@@ -110,6 +116,7 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+    // Maps a database row to a User object
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getInt("user_id"));

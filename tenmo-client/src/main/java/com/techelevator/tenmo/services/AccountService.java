@@ -19,11 +19,14 @@ public class AccountService {
     private RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser authenticatedUser;
 
+    //Constructs an AccountService object with the specified base URL.
+
     public AccountService(String url) {
         this.baseUrl = url;
         this.restTemplate = new RestTemplate();
     }
 
+    //Returns the AuthenticatedUser object representing the currently authenticated user.
     public AuthenticatedUser getAuthenticatedUser() {
         return authenticatedUser;
     }
@@ -31,6 +34,9 @@ public class AccountService {
     public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
     }
+
+
+//     * Updates the account information on the server by sending an HTTP PUT request.
 
     public void updateAccount(Account account) {
         try {
@@ -40,6 +46,9 @@ public class AccountService {
             BasicLogger.log(e.getMessage());
         }
     }
+
+
+//     * Retrieves the account with the specified ID from the server by sending an HTTP GET request.
 
     public Account getAccount(int id) {
         try {
@@ -56,6 +65,9 @@ public class AccountService {
         }
     }
 
+
+//     * Retrieves the account with the specified ID from the server by sending an HTTP GET request.
+
     public Account getAccountById(int id) {
         try {
             ResponseEntity<Account> response = restTemplate.exchange(
@@ -70,6 +82,9 @@ public class AccountService {
             return null;
         }
     }
+
+
+//     * Retrieves the list of user accounts from the server by sending an HTTP GET request.
 
     public List<Account> getUserAccounts() {
         try {
@@ -86,6 +101,9 @@ public class AccountService {
         }
     }
 
+
+//     * Retrieves the list of transfers from the server by sending an HTTP GET request.
+
     public List<Transfer> getTransfers() {
         try {
             ResponseEntity<Transfer[]> responseEntity = restTemplate.exchange(
@@ -100,6 +118,9 @@ public class AccountService {
             return null;
         }
     }
+
+
+//     * Retrieves the list of pending transfers from the server by sending an HTTP GET request.
 
     public List<Transfer> getPendingTransfers() {
         try {
@@ -116,6 +137,9 @@ public class AccountService {
         }
     }
 
+
+//     * Retrieves the user account associated with the currently authenticated user.
+
     public Account getUserAccount() {
         List<Account> accounts = getUserAccounts();
         if (accounts != null && accounts.size() == 1) {
@@ -124,24 +148,28 @@ public class AccountService {
         return null;
     }
 
-    public boolean hasMultipleAccounts(List<Account> accounts) {
-        return accounts != null && accounts.size() > 1;
-    }
+
+//     * Checks if the given amount is within the range of the account balance.
 
     public boolean isAmountInAccountRange(BigDecimal amountSend, BigDecimal accountBalance) {
         return amountSend.compareTo(accountBalance) > 0;
     }
+
+
+//    Creates an HttpEntity object with the given Account and authentication headers.
 
     private HttpEntity<Account> makeAccountEntity(Account account) {
         HttpHeaders headers = createHeadersWithToken();
         return new HttpEntity<>(account, headers);
     }
 
+// Creates an HttpEntity object with the authentication headers.
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = createHeadersWithToken();
         return new HttpEntity<>(headers);
     }
 
+    //Creates HttpHeaders object with the authentication token and content type.
     private HttpHeaders createHeadersWithToken() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authenticatedUser.getToken());

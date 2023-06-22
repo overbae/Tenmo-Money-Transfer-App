@@ -20,7 +20,7 @@ public class AuthenticationService {
         this.baseUrl = url;
     }
 
-
+    // Logs in the user with the provided credentials and returns the AuthenticatedUser object.
     public AuthenticatedUser login(UserCredentials credentials) {
         HttpEntity<UserCredentials> entity = createCredentialsEntity(credentials);
         AuthenticatedUser user = null;
@@ -35,6 +35,8 @@ public class AuthenticationService {
         return user;
     }
 
+    // Registers a new user with the provided credentials.
+    // Returns true if the registration is successful, false otherwise.
     public boolean register(UserCredentials credentials) {
         HttpEntity<UserCredentials> entity = createCredentialsEntity(credentials);
         boolean success = false;
@@ -48,7 +50,7 @@ public class AuthenticationService {
         return success;
     }
 
-
+    // Creates an HttpEntity object with the provided UserCredentials and content type headers.
     private HttpEntity<UserCredentials> createCredentialsEntity(UserCredentials credentials) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

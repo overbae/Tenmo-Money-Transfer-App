@@ -19,11 +19,12 @@ import java.util.List;
 public class AccountController {
     private AccountDao accountDao;
 
+    // Constructor to initialize the AccountController with an AccountDao
     public AccountController(JdbcAccountDao accountDao) {
         this.accountDao = accountDao;
     }
 
-
+    // Handles GET request to retrieve all accounts for a specific user
     @GetMapping("/accounts")
     @ResponseStatus(HttpStatus.OK)
     public List<Account> getAccounts(Principal principal) {
@@ -35,6 +36,7 @@ public class AccountController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Not Found");
     }
 
+    // Handles GET request to retrieve an account by user ID
     @GetMapping("/account/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Account getAccountByUserId(@PathVariable int id) {
@@ -46,6 +48,7 @@ public class AccountController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Not Found");
     }
 
+    // Handles GET request to retrieve an account by account ID
     @GetMapping("/get_account/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Account getAccountByAccountId(@PathVariable int id) {
@@ -57,6 +60,7 @@ public class AccountController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Not Found");
     }
 
+    // Handles PUT request to update an account
     @PutMapping("/account")
     public ResponseEntity<Boolean> update(@RequestBody @Valid Account account) {
         if (accountDao.update(account)) {

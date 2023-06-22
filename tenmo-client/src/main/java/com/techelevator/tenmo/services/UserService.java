@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
@@ -22,18 +23,22 @@ public class UserService {
     private RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser authenticatedUser;
 
+    // Constructor to initialize the UserService with a base URL
     public UserService(String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
+    // Sets the authenticated user for the UserService
     public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
     }
 
+    // Retrieves all users from the server
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
         try {
+            // Send a GET request to retrieve all users
             ResponseEntity<User[]> response = restTemplate.exchange(baseUrl + "/users", HttpMethod.GET, makeAuthEntity(), User[].class);
             if (response.hasBody()) {
                 users = Arrays.asList(response.getBody());
@@ -45,6 +50,7 @@ public class UserService {
         return users;
     }
 
+    // Checks if a user ID is valid and exists
     public boolean isUserValid(int userId, User currentUser) {
         if (userId == currentUser.getId()) {
             System.out.println("You can't send money to yourself!\n");
@@ -52,6 +58,7 @@ public class UserService {
         }
 
         try {
+            // Send a GET request to check if the user with the given ID exists
             ResponseEntity<User> response = restTemplate.exchange(baseUrl + "/users/search_user/" + userId, HttpMethod.GET, makeAuthEntity(), User.class);
             if (response.hasBody()) {
                 return true;
@@ -65,21 +72,30 @@ public class UserService {
         return false;
     }
 
-    public List<String> getUsersFromTransfers(List<Transfer> transfers) {
+    // Retrieves usernames from transfers for the given account
+    public List<String> getUsersFromTransfers(List<Transfer> transfers, Account currentAccount) {
         List<String> usersFromTransfers = new ArrayList<>();
 
         for (Transfer transfer : transfers) {
-            String username = getUsernameFromAccount(transfer.getAccountTo());
+            String username;
+            if (transfer.getAccountFrom() == currentAccount.getAccountID()) {
+                username = getUsernameFromAccount(transfer.getAccountTo());
+            } else {
+                username = getUsernameFromAccount(transfer.getAccountFrom());
+            }
+
             usersFromTransfers.add(username);
         }
 
         return usersFromTransfers;
     }
 
+    // Retrieves the username associated with the given account
     public String getUsernameFromAccount(int account) {
         String username = "";
 
         try {
+            // Send a GET request to retrieve the username associated with the account
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/users/user_from_account/" + account, HttpMethod.GET, makeAuthEntity(), String.class);
             if (response.hasBody()) {
                 username = response.getBody();
@@ -91,6 +107,7 @@ public class UserService {
         return username;
     }
 
+    // Checks if an amount is valid
     public boolean isAmountValid(BigDecimal amount) {
         if (amount.equals(BigDecimal.ZERO)) {
             System.out.println("Transfer has been cancelled.");
@@ -105,6 +122,7 @@ public class UserService {
         return true;
     }
 
+    // Creates an HttpEntity with authentication headers only
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authenticatedUser.getToken());
