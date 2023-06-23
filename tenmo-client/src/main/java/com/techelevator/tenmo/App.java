@@ -13,9 +13,7 @@ public class App {
 
     private final int TRANSFER_TYPE_REQUEST = 1;
     private final int TRANSFER_TYPE_SEND = 2;
-    private final int TRANSFER_STATUS_PENDING = 1;
     private final int TRANSFER_STATUS_APPROVED = 2;
-    private final int TRANSFER_STATUS_REJECTED = 3;
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
@@ -187,6 +185,7 @@ public class App {
         }
 
         if (transferChoice == TRANSFER_REJECT) {
+            int TRANSFER_STATUS_REJECTED = 3;
             transfer.setTransferStatusId(TRANSFER_STATUS_REJECTED);
             transferService.updateTransfer(transfer);
             System.out.println("You have rejected the transfer with ID " + transfer.getTransferId());
@@ -250,6 +249,7 @@ public class App {
 
 
         if (isTransferTypeRequest) {
+            int TRANSFER_STATUS_PENDING = 1;
             transferService.setTransferDetails(transfer, TRANSFER_TYPE_REQUEST, TRANSFER_STATUS_PENDING,
                     targetAccount.getAccountID(), currentAccount.getAccountID(), amount);
         } else {
@@ -283,3 +283,4 @@ public class App {
         mainMenu();
     }
 }
+// comment for a push

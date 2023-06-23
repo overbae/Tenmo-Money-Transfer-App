@@ -1,0 +1,5 @@
+2023-06-22T11:08:07.752516 400 : [{"timestamp":"2023-06-22T16:08:07.726+00:00","status":400,"error":"Bad Request","message":"Validation failed for object='registerUserDto'. Error count: 1","errors":[{"codes":["NotEmpty.registerUserDto... (566 bytes)]
+2023-06-22T11:16:00.660144 401 : [no body]
+2023-06-22T12:21:16.500684 401 : [no body]
+2023-06-22T22:09:31.695122 404 : [{"timestamp":"2023-06-23T03:09:31.680+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/0"}]
+2023-06-22T22:10:48.848869 404 : [{"timestamp":"2023-06-23T03:10:48.847+00:00","status":404,"error":"Not Found","message":"Auction Not Found","path":"/users/search_user/10"}]

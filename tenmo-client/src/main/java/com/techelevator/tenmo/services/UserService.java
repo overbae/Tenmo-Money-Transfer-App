@@ -57,6 +57,11 @@ public class UserService {
             return false;
         }
 
+        if (userId == 0) {
+            System.out.println("Returning to the main menu...");
+            return false;
+        }
+
         try {
             // Send a GET request to check if the user with the given ID exists
             ResponseEntity<User> response = restTemplate.exchange(baseUrl + "/users/search_user/" + userId, HttpMethod.GET, makeAuthEntity(), User.class);
@@ -65,8 +70,15 @@ public class UserService {
             } else {
                 System.out.println("User not found");
             }
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+        } catch (RestClientResponseException e) {
+            int statusCode = e.getRawStatusCode();
+            if (statusCode == 404) {
+                System.out.println("User not found");
+            } else {
+                System.out.println("Error: The server returned a " + statusCode + " status code.");
+            }
+        } catch (ResourceAccessException e) {
+            System.out.println("Error: Unable to access the server. Please check your network connection.");
         }
 
         return false;
