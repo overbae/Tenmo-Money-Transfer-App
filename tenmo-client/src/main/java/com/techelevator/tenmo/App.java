@@ -127,6 +127,7 @@ public class App {
         // Print the detailed transfer information
         consoleService.printTransferDetails(transfer, userFrom, userTo);
     }
+
     // this method retrieves pending transfers, displays them to the user along with relevant
     // information, and prompts the user to enter the transfer ID.
     // It will determine if the ID entered is valid, display the options and retrieve the
@@ -168,9 +169,9 @@ public class App {
         beginTransferProcess(TRANSFER_TYPE_REQUEST);
     }
 
-   // this method handles the processing of a pending transfer by allowing the user to choose whether
-   // to approve or reject the transfer. It updates the transfer status, performs necessary actions based
-   // on the choice and account balance, updates the accounts, and provides feedback to the user.
+    // this method handles the processing of a pending transfer by allowing the user to choose whether
+    // to approve or reject the transfer. It updates the transfer status, performs necessary actions based
+    // on the choice and account balance, updates the accounts, and provides feedback to the user.
     public void startPendingTransferProcess(Transfer transfer, Account currentAccount, Account receiverAccount,
                                             boolean isAmountInRange) {
         int transferChoice = consoleService.promptForInt("Please choose an option: ");
@@ -214,6 +215,7 @@ public class App {
         mainMenu();
 
     }
+
     // This method handles the process of initiating a money transfer or request between users.
     // It prompts for user input, validates the input, performs the necessary actions based on the transfer type,
     // and provides feedback to the user.
@@ -228,59 +230,56 @@ public class App {
         boolean isTransferTypeRequest = (transferType == TRANSFER_TYPE_REQUEST);
 
         String transferTypeString = (isTransferTypeRequest) ? "request" : "send";
-        int targetUser = consoleService.promptForInt("Please enter the ID of the user you want to " + transferTypeString +
-                " money or enter 0 to cancel the transfer:  ");
+        int targetUser = consoleService.promptForInt("Please enter the ID of the user you want to " + transferTypeString + " money or enter 0 to cancel the transfer:  ");
 
-        if (!userService.isUserValid(targetUser, current)) {
-            mainMenu();
-        }
+        if (userService.isUserValid(targetUser, current)) {
+            BigDecimal amount = consoleService.promptForBigDecimal("Please enter the amount of money you want to " + transferTypeString + " or 0 to cancel: ");
+            if (userService.isAmountValid(amount)) {
+                System.out.println((isTransferTypeRequest) ? "Requesting money..." : "Sending money...");
 
-        BigDecimal amount = consoleService.promptForBigDecimal("Please enter the amount of money you want to " + transferTypeString + " or 0 to cancel: ");
-        if (!userService.isAmountValid(amount)) {
-            mainMenu();
-        }
+                Account currentAccount = accountService.getUserAccount();
+                Account targetAccount = accountService.getAccount(targetUser);
+                Transfer transfer = new Transfer();
 
+                if (isTransferTypeRequest) {
+                    int TRANSFER_STATUS_PENDING = 1;
+                    transferService.setTransferDetails(transfer, TRANSFER_TYPE_REQUEST, TRANSFER_STATUS_PENDING,
+                            targetAccount.getAccountID(), currentAccount.getAccountID(), amount);
+                } else {
+                    if (!accountService.isAmountInAccountRange(amount, currentAccount.getBalance())) {
+                        transferService.setTransferDetails(transfer, TRANSFER_TYPE_SEND, TRANSFER_STATUS_APPROVED,
+                                targetAccount.getAccountID(), currentAccount.getAccountID(), amount);
+                        targetAccount.receiveMoney(amount);
+                        currentAccount.sendMoney(amount);
 
-        System.out.println((isTransferTypeRequest) ? "Requesting money..." : "Sending money...");
+                        accountService.updateAccount(targetAccount);
+                        accountService.updateAccount(currentAccount);
+                    } else {
+                        System.out.println("Transfer was not completed. Reason: " + RED_BOLD + "Not enough money in account." + RESET);
+                    }
+                }
 
-        Account currentAccount = accountService.getUserAccount();
-        Account targetAccount = accountService.getAccount(targetUser);
-        Transfer transfer = new Transfer();
+                Transfer returnedTransfer = transferService.createTransfer(transfer);
+                int transferId = returnedTransfer.getTransferId();
 
-
-        if (isTransferTypeRequest) {
-            int TRANSFER_STATUS_PENDING = 1;
-            transferService.setTransferDetails(transfer, TRANSFER_TYPE_REQUEST, TRANSFER_STATUS_PENDING,
-                    targetAccount.getAccountID(), currentAccount.getAccountID(), amount);
-        } else {
-            if (accountService.isAmountInAccountRange(amount, currentAccount.getBalance())) {
-                System.out.println("Transfer was not completed." + " Reason:" + RED_BOLD + " Not enough money in account." + RESET);
-                mainMenu();
+                if (transferId == 0) {
+                    System.out.println("Transfer could not be completed. Try again later");
+                } else {
+                    if (isTransferTypeRequest) {
+                        consoleService.printRequestSuccess(targetUser, amount, transferId);
+                    } else {
+                        consoleService.printSendSuccess(targetUser, amount, transferId);
+                    }
+                }
+            } else {
+                System.out.println("Invalid amount. Please try again.");
             }
-            transferService.setTransferDetails(transfer, TRANSFER_TYPE_SEND, TRANSFER_STATUS_APPROVED,
-                    targetAccount.getAccountID(), currentAccount.getAccountID(), amount);
-            targetAccount.receiveMoney(amount);
-            currentAccount.sendMoney(amount);
-
-            accountService.updateAccount(targetAccount);
-            accountService.updateAccount(currentAccount);
-        }
-
-
-        Transfer returnedTransfer = transferService.createTransfer(transfer);
-        int transferId = returnedTransfer.getTransferId();
-
-        if (returnedTransfer.getTransferId() == 0) {
-            System.out.println("Transfer could not be completed. Try again later");
+        } else {
             mainMenu();
         }
 
-        if (isTransferTypeRequest) {
-            consoleService.printRequestSuccess(targetUser, amount, transferId);
-        } else {
-            consoleService.printSendSuccess(targetUser, amount, transferId);
-        }
         mainMenu();
     }
 }
+
 // comment for a push

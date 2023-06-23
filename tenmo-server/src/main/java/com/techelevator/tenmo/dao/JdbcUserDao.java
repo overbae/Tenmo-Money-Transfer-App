@@ -26,29 +26,34 @@ public class JdbcUserDao implements UserDao {
     // Finds the user ID associated with a given username
     @Override
     public int findIdByUsername(String username) {
-        if (username == null) throw new IllegalArgumentException("Username cannot be null");
+        // Check if the username is null
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
 
         Integer userId;
         try {
+            // SQL query to select the user_id from the tenmo_user table for the given username
             userId = jdbcTemplate.queryForObject("SELECT user_id FROM tenmo_user WHERE username = ?", Integer.class, username);
         } catch (NullPointerException | EmptyResultDataAccessException e) {
+            // Throw an exception if the username is not found
             throw new UsernameNotFoundException("User " + username + " was not found.");
         }
 
+        // Return the user ID
         return userId;
     }
 
     // Retrieves the username associated with a given account ID
     @Override
-    public String getUserByAccount(int accountId){
+    public String getUserByAccount(int accountId) {
         String username = "";
-        String sql = "SELECT user_id, username, password_hash FROM tenmo_user " +
-                "JOIN account USING (user_id) " +
-                "WHERE account_id = ?";
+        String sql = "SELECT username FROM tenmo_user "
+                + "INNER JOIN account ON tenmo_user.user_id = account.user_id "
+                + "WHERE account.account_id = ?";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
-        if(result.next()){
-            User user = mapRowToUser(result);
-            username = user.getUsername();
+        if (result.next()) {
+            username = result.getString("username");
         }
         return username;
     }
@@ -84,7 +89,10 @@ public class JdbcUserDao implements UserDao {
     // Retrieves a user by their username
     @Override
     public User findByUsername(String username) {
-        if (username == null) throw new IllegalArgumentException("Username cannot be null");
+        // Check if the username is null
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
 
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
@@ -97,14 +105,15 @@ public class JdbcUserDao implements UserDao {
     // Creates a new user with the given username and password
     @Override
     public boolean create(String username, String password) {
-
-        // create user
+        // Create user
         String sql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
         String password_hash = new BCryptPasswordEncoder().encode(password);
         Integer newUserId;
         newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
 
-        if (newUserId == null) return false;
+        if (newUserId == null) {
+            return false;
+        }
 
         sql = "INSERT INTO account (user_id, balance) values(?, ?)";
         try {
